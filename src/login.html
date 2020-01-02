@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../css/mui.min.css"/>
+		<title></title>
+		<script type="text/javascript">
+			var anth={}
+			if(window.plus){
+				plusReady()
+			}
+			else{
+				document.addEventListener('plusready',plusReady,false)
+			}
+			function plusReady(){
+				plus.oauth.getServices(function(res){
+					for(var i in res){
+						console.log(res[i].userInfo)
+						if(res[i].userInfo!=null){
+							document.getElementById('info').style.display='block'
+							document.getElementsByClassName('infos')[0].innerHTML=JSON.stringify(res[i].userInfo)
+						}
+						anth[res[i].id]=res[i]
+					}
+				})
+			}
+			
+			function login(id){
+				var w=plus.nativeUI.showWaiting('请稍后...',{
+					loading:{display:"inline"},
+					width:"40%",
+					size:"16px"
+				})
+				anth[id].login(function(res){
+					setTimeout(function(){
+						w.close()
+					},1000)
+					console.log(JSON.stringify(anth[id].userInfo))
+					document.getElementsByClassName('infos')[0].innerHTML=JSON.stringify(anth[id].userInfo)
+					plus.nativeUI.alert('"登录认证成功!"')
+					document.getElementById('info').style.display='block'
+				})
+			}
+			
+			function clears(){
+				document.getElementsByClassName('infos')[0].innerHTML=''
+				for(var i in anth){
+					if(anth[i].userInfo!=null){
+						anth[i].logout(function(e){
+							plus.nativeUI.alert('"注销登录认证成功!"')
+						},function(e){
+							plus.nativeUI.alert("注销登录认证失败: "+JSON.stringify(e));
+						})
+					}
+				}	
+				document.getElementById('info').style.display='none'
+			}
+			
+			
+		</script>
+		<style type="text/css">
+			.infos{
+				width: 100%;
+				word-break: break-all;
+			}
+			#info{
+				display: none;
+			}
+		</style>
+	</head>
+	<body>
+		<button type="button" class="mui-btn mui-btn-blue mui-btn-block" onclick="login('weixin')">微信支付</button>
+		<button type="button" class="mui-btn mui-btn-blue mui-btn-block" onclick="login('qq')">qq支付</button>
+		<button type="button" class="mui-btn mui-btn-blue mui-btn-block" onclick="login('sinaweibo')">微博支付</button>
+		<div class="infos">
+
+		</div>
+		<button type="button" id="info" class="mui-btn mui-btn-blue mui-btn-block" onclick="clears()">注销账号</button>
+	</body>
+</html>

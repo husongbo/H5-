@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../css/mui.min.css"/>
+		<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+		<title></title>
+		<script type="text/javascript">
+			
+			var zflist=[]
+			if(window.plus){
+				plusReady()
+			}
+			else{
+				document.addEventListener('plusready',plusReady,false)
+			}
+			function plusReady(){
+				plus.payment.getChannels(function(channels){
+					console.log(channels)
+					var info=document.getElementById('info');
+					var txt='支付通道信息：';
+					for(var i in channels){
+						// console.log(JSON.stringify(channels[i]))
+						zflist.push(channels[i])
+						txt+=channels[i].description+'支付,'
+					}
+					info.innerText=txt;
+				},function(err){
+					alert( "获取支付通道列表失败："+err.message );
+				})
+			}
+			
+			function zhifubao(ids){
+				var url='http://demo.dcloud.net.cn/payment/?payid='
+				console.log(ids)
+				var value=document.getElementById('total').value
+				url+=ids;
+				var appid=plus.runtime.appid//---------当前应用的APPID
+				url+='&appid='+appid+'&total=';
+				console.log(url)
+				$.ajax({
+					//请求方式
+					type : "GET",
+					//请求的媒体类型
+					contentType: "application/json;charset=UTF-8",
+					//请求地址
+					url : url,
+					//数据，json字符串
+					data : {},
+					//请求成功
+					success : function(result) {
+						console.log(result);
+						var order=result
+						for(var item in zflist){
+							if(zflist[item].id==ids){
+								plus.payment.request(zflist[item],order,function(res){
+									console.log(res)
+								},function(err){
+									console.log(JSON.stringify(err))
+								})
+							}
+						}	
+					},
+					//请求失败，包含具体的错误信息
+					error : function(e){
+						console.log(e.status);
+						console.log(e.responseText);
+					}
+				});
+				console.log(value)
+			}
+		</script>
+		<style type="text/css">
+			#total{
+				-webkit-user-select:text;
+				text-align:right;
+				padding:0 1em;
+				border: 0px;
+				border-bottom:1px solid #ECB100;
+				border-radius: 0;
+				font-size:16px;
+				width:30%;
+				outline:none;
+			}
+		</style>
+	</head>
+	<body>
+		<p id="info" style="padding: 0 1em;text-align:left;">支付通道信息：</p>
+		<div style="padding: 0.5em 1em;"><hr color="#EEE"/></div>
+		<p style="padding: 0 1em;text-align:left;">测试支付</p>
+		<br/>
+		<div style="padding: 0 1em;text-align:left">
+			捐赠金额：<input id="total" type="number" value="1"/> 元
+		</div>
+		<br/>
+		<button type="button" class="mui-btn mui-btn-blue mui-btn-block" onclick="zhifubao('alipay')">支付宝支付</button>
+		<button type="button" class="mui-btn mui-btn-blue mui-btn-block" onclick="zhifubao('wxpay')">微信支付</button>
+	</body>
+</html>

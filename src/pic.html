@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../css/mui.min.css"/>
+		<title></title>
+		<script type="text/javascript">
+			var imglist=[]
+			if(window.plus){
+				plusReady()
+			}
+			else{
+				document.addEventListener('plusready',plusReady,false)
+			}
+			function plusReady(){
+				if(plus.storage.getItem('imglists')!=null){
+					var list=JSON.parse(plus.storage.getItem('imglists'))
+					list.forEach(function(item,index){
+						var doms=document.getElementById('ids')
+						var el=document.createElement('div')
+						var imgs=document.createElement('img')
+						imgs.id='A'+index
+						imgs.style.width='100%'
+						imgs.style.height='100%'
+						imgs.src=item.img
+						imgs.onclick=function(){
+							imgshow(imgs.id)
+						}
+						doms.appendChild(el)
+						el.appendChild(imgs)
+					})
+					imglist=list
+				}
+			}
+			function getimgones(){
+				plus.gallery.pick(function(e){
+					console.log(JSON.stringify(e))
+					for(var i=0;i<e.files.length;i++){
+						getimgurl(e.files[i])
+					}
+				},function(err){
+					console.log(err)
+				},{filter:'image',multiple:true,maximum:10,system:false})
+			}
+			
+			function getimgurl(e){
+				var render=new plus.io.FileReader()
+				render.readAsDataURL(e)
+				render.onloadend=function(res){
+					var doms=document.getElementById('ids')
+					var el=document.createElement('div')
+					var imgs=document.createElement('img')
+					imgs.id='A'+imglist.length
+					imgs.style.width='100%'
+					imgs.style.height='100%'
+					imgs.src=e
+					imgs.onclick=function(){
+						imgshow(imgs.id)
+					}
+					imglist.push({
+						img:e,
+						id:imgs.id
+					})
+					if(plus.storage.getItem('imglists')==null){
+						plus.storage.setItem('imglists',JSON.stringify(imglist))
+					}
+					else{
+						plus.storage.setItem('imglists',JSON.stringify(imglist))
+					}
+					doms.appendChild(el)
+					el.appendChild(imgs)			
+				}
+			}
+			
+			
+			//----------------显示图片
+			function imgshow(id){
+				console.log(id)
+				var idimg=document.getElementById('ids')
+				var list=[]
+				var listindex=0
+				var idimglist=idimg.children
+				for(var i=0;i<idimglist.length;i++){
+					list.push(idimglist[i].firstElementChild.getAttribute('src'))
+					if(idimglist[i].firstElementChild.getAttribute('id')==id){
+						listindex=i
+					}
+				}
+				
+				plus.nativeUI.previewImage(list,{
+					current:listindex,//------默认显示图片的索引值
+					loop:true,//-------是否可循环预览
+				})
+			}
+		</script>
+		<style type="text/css">
+			.price{
+				display: flex;
+				justify-content: space-between;
+				flex-flow: row wrap;
+				min-height: 100px;
+			}
+			.price div{
+				width: 48%;
+				margin-bottom: 2%;
+			}
+		</style>
+	</head>
+	<body>
+		<button type="button" class="mui-btn mui-btn-blue mui-btn-block" onclick="getimgones()">选择一张或多张图片</button>
+		<div class="price" id="ids">
+			
+		</div>
+	</body>
+</html>

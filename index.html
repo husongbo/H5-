@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+    <title></title>
+    <script type="text/javascript">
+    	if(window.plus){
+			plusReady()
+		}
+		else{
+			document.addEventListener('plusready',plusReady,false);
+		}
+   		//---------------------进入执行
+		function plusReady(){
+			//-----------------------Android处理返回键
+			plus.key.addEventListener('backbutton',function(){
+				console.log(plus.os.name)
+				if(plus.os.name=='Android'|| plus.os.name=='ios'){
+					plus.nativeUI.confirm('确认退出?',function(e){
+						if(e.index==0){
+							plus.runtime.quit()//-----------退出
+						}
+					})
+				}
+			})
+		}
+   		//---------切换页面
+		function Goto(url,text){
+			var w=plus.webview.create(url,url,{
+				scrollIndicator:'none',
+				scalable: false,
+				popGesture: 'close',
+				backButtonAutoControl: 'close',
+				titleNView: {
+					autoBackButton: true,//------标题栏控件是否显示左侧返回按钮.true:显示返回按钮
+					backgroundColor: '#D74B28',
+					titleColor: '#CCCCCC',
+					titleText: text,
+					// type:'transparent',
+					buttons:[
+						{
+							color: '#fff', //String类型,按钮上文字颜色.可取值:"#RRGGBB"格式字符串,"rgba(R,G,B,A)".默认值为窗口标题栏控件的标题文字颜色.
+							colorPressed: '#fff', //String类型,按下状态按钮文字颜色.String类型,按钮上文字颜色.可取值:"#RRGGBB"格式字符串,"rgba(R,G,B,A)".默认值为color属性值自动调整透明度为0.3.
+							float: 'right', //String类型,按钮在标题栏上的显示位置.right:在标题栏中靠右排列显示.left:在标题栏中靠左侧排列显示(在返回键后). 默认:right.
+							fontWeight: 'normal', //String类型,按钮上文字的粗细.normal:标准字体.bold:加粗字体.默认:normal.
+							fontSize: '14px', //String类型,按钮上文字大小.可取值:字体高度像素值,数字加"px"格式字符串.
+							fontSrc: '/fonts/iconfont.ttf', //String类型,按钮上文字使用的字体文件路径.相对路径:相对于当前页面的host位置,如"a.jpg",注意当前页面为网络地址则不支持.绝对路径:如Android平台"/sdcard/logo.png",此类路径通常通过其它5+ API获取的.扩展相对路径URL(RelativeURL):以"_"开头的相对路径,如"_www/a.jpg".本地路径URL:以"file://"开头,后面跟随系统绝对路径.
+							onclick: '', //WebviewCustomButtonCallback类型,按钮点击后触发的回调函数.回调函数中将返回此JSON对象
+							text: '\ue64a' //String类型,按钮上显示的文字.推荐使用一个字符,超过一个字符可能无法正常显示,使用字体图标时unicode字符表示必须'\u'开头,如"\ue123"(注意不能写成"\e123").
+						}
+					],
+				}
+			})
+			w.show('slide-in-right')
+		}
+		
+		//---------扫码
+		function saoyisao(src){
+			plus.webview.open(src,src,{
+				backButtonAutoControl: 'close',
+				titleNView:{
+					backgroundColor: '#D74B28',
+					titleText: '扫一扫',
+					titleColor: '#FFFFFF',
+					autoBackButton: true,
+					buttons: [{
+						fontSrc: 'fonts/iconfont.ttf',
+						text: '\ue64b',
+						fontSize: '18px',
+						onclick:function(){
+							plus.nativeUI.alert('aa')
+						}
+					}]
+				}
+			},'slide-in-right')
+		}
+		function scanPicture(){
+			plus.nativeUI.alert('aa')
+		}
+		
+		//-------------预览图片
+		function yulanpic(){
+			plus.nativeUI.previewImage([
+				"./img/1575265715246.jpeg",
+				"./img/psbe.jpg",
+				"./img/1575265715246.jpeg"
+			],{
+				current:1,//------默认显示图片的索引值
+				loop:true,//-------是否可循环预览
+			})
+		}
+    </script>
+</head>
+<body>
+	<ul class="mui-table-view">
+	    <li class="mui-table-view-cell" onclick="Goto('src/tiaozhuan.html','跳转')">跳转</li>
+	    <li class="mui-table-view-cell" onclick="saoyisao('src/saoyisao.html')">扫码</li>
+	    <li class="mui-table-view-cell" onclick="Goto('src/paizhao.html','拍照录像')">拍照录像</li>
+		<li class="mui-table-view-cell" onclick="Goto('src/zhifu.html','支付')">支付</li>
+		<li class="mui-table-view-cell" onclick="Goto('src/login.html','登录')">登录</li>
+		<li class="mui-table-view-cell" onclick="yulanpic()">预览图片</li>
+		<li class="mui-table-view-cell" onclick="Goto('src/video.html','视频播放')">视频播放</li>
+		<li class="mui-table-view-cell" onclick="Goto('src/pic.html','选择照片')">选择照片</li>
+		<li class="mui-table-view-cell" onclick="Goto('src/css.html','CSS3')">CSS3</li>
+	</ul>
+</body>
+</html>

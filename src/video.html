@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+		<title></title>
+		<script type="text/javascript">
+			if(window.plus){
+				plusReady()
+			}
+			else{
+				document.addEventListener('plusready',plusReady,false)
+			}
+			function plusReady(){
+				var items=document.getElementsByClassName('item')
+				for(var i=0;i<items.length;i++){
+					console.log(items[i].getAttribute('id'))
+					var video=new plus.video.VideoPlayer(items[i].getAttribute('id'),{
+						src:items[i].getAttribute('rel'),
+						controls:true,//---------是否显示默认播放控件
+						autoplay:false,//----------是否自动播放
+						direction:-90,//----------设置全屏时视频的方向
+						objectFit:'contain',//---------contain（包含），fill（填充），cover（覆盖）。 默认值为contain
+						poster:items[i].getAttribute('rels')
+					})
+					video.addEventListener('ended',function(){
+						console.log(video)
+						//const videoSrc = video.poster;
+						console.log(videoSrc)
+						//video.poster = '';
+						//video.poster = videoSrc;
+					},false)
+				}			
+			}
+		</script>
+		<style type="text/css">
+			.content{
+				width: 100%;
+				display: flex;
+				justify-content: space-between;
+				flex-flow: row wrap;
+			}
+			.item,.items{
+				width: 48%;
+				min-height: 200px;
+				margin-bottom:4%;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="content">
+			<div id="a" class='item' rel='http://vfx.mtime.cn/Video/2019/02/04/mp4/190204084208765161.mp4', 
+			rels='https://img.alicdn.com/bao/uploaded/i8/TB1UxZ2qlr0gK0jSZFnObHRRXXa_121211.jpg'></div>
+			<div id="aa" class='item' rel='http://vfx.mtime.cn/Video/2019/03/21/mp4/190321153853126488.mp4',
+			rels='https://img.alicdn.com/bao/uploaded/i8/TB1UxZ2qlr0gK0jSZFnObHRRXXa_121211.jpg'></div>
+			<div id="saa" class='item' rel='http://vfx.mtime.cn/Video/2019/03/21/mp4/190321153853126488.mp4',
+			rels='https://img.alicdn.com/bao/uploaded/i8/TB1UxZ2qlr0gK0jSZFnObHRRXXa_121211.jpg'></div>
+			<div id="aaa" class='item' rel='http://vfx.mtime.cn/Video/2019/03/21/mp4/190321153853126488.mp4',
+			rels='https://img.alicdn.com/bao/uploaded/i8/TB1UxZ2qlr0gK0jSZFnObHRRXXa_121211.jpg'></div>
+		</div>
+	</body>
+</html>

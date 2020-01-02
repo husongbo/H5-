@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="../css/mui.min.css"/>
+		<title></title>
+		<script type="text/javascript">
+			var gentry=null
+			var medielist=[]
+			if(window.plus){
+				plusReady()
+			}
+			else{
+				document.addEventListener('plusready',plusReady,false)
+			}
+			// document.addEventListener('DOMContentLoaded',function(){
+			// 	alert('aaa')
+			// })
+			function plusReady(){
+				plus.io.resolveLocalFileSystemURL('_doc/',function(entry){
+					// alert(JSON.parse(entry))
+					//-------------------------------------创建或打开子目录getDirectory
+					//-----------------create：true 没有就创建
+					entry.getDirectory('camera', {create:true}, function(dir){
+						gentry=dir
+						var render=gentry.createReader()//-------------//创建目录读取对象
+						render.readEntries(function(entries){//--------获取当前目录中的所有文件和子目录
+							for(var i in entries){
+								console.log(entries[i].name)
+								if(entries[i].isFile){//-------是否有文件
+									createiem(entries[i])
+								}
+							}
+							
+						})
+					}, function(e){
+						outSet('打开失败: '+e.message);
+					});
+				},function(err){
+					console.log('查找失败'+err)
+				})
+			}
+			
+			function createiem(gentry){
+				var hl=document.getElementById('history');
+				var le=document.getElementById('empty');
+				var li = document.createElement('li');
+				li.className = 'ditem';
+				li.innerHTML = '<span class="iplay"><font class="aname"></font><br/><font class="ainf"></font></span>';
+				li.setAttribute('onclick', 'displayFile(this)' );
+				li.querySelector('.aname').innerText = gentry.name;
+				li.gentry=gentry
+				hl.appendChild(li)
+				// 设置空项不可见
+				le.style.display = 'none';
+			}
+			
+			function displayFile(li){
+				var name=li.gentry.name
+				var pichz=name.substr(name.lastIndexOf('.'))
+				if(pichz=='.mov' || pichz=='.3gp' || pichz=='.mp4' || pichz=='.avi'){
+					url = 'shipingvwido.html';
+				} else {
+					url = 'paizhaoxq.html';
+				}
+				var htmls=plus.webview.create(url,url,{
+					 hardwareAccelerated:true,//-------Boolean类型,窗口是否开启硬件加速.true:开启.false:不开启
+					scrollIndicator:'none',//String类型,窗口是否显示滚动条.all:垂直和水平滚动条都显示.vertical:仅显示垂直滚动条.horizontal:仅显示水平滚动条.none:垂直和水平滚动条都不显示.默认:all.
+					scalable:true,//Boolean类型,窗口是否可缩放.true:用户可通过双指操作放大或缩小页面,此时html页面可通过meta节点设置"name="viewport" content="user-scalable=no""来限制页面不可缩放.
+					bounce:'all'////String类型,窗口遇到边框是否有反弹效果.none:没有反弹效果.vertical:垂直方向有反弹效果.horizontal:水平方向有反弹效果.all:垂直和水平方向都有反弹效果.默认:none.
+				})
+				htmls.addEventListener('loaded',function(){
+					htmls.evalJS('loadMedia("'+li.gentry.toLocalURL()+'")')//获取目录路径转换为本地路径URL地址
+					//evalJS注入
+				})
+				htmls.show('pop-in')
+				console.log(pichz)
+			}
+			
+			
+			function paizhao(){
+				console.log('开始拍照')
+				var cmr=plus.camera.getCamera()
+				var paizhaofenbianlv=cmr.supportedImageResolutions//------------摄像头支持的拍照分辨率
+				console.log(paizhaofenbianlv[0])
+				var shexiangtoufenbianlv=cmr.supportedVideoResolutions//---------摄像头支持的摄像分辨率
+				var paizhaowjgs=cmr.supportedImageFormats//-----------------摄像头支持的拍照文件格式
+				var shexiangwjgs=cmr.supportedVideoFormats//----------------摄像头支持的摄像文件格式
+				cmr.captureImage(function(path){
+					plus.io.resolveLocalFileSystemURL(path,function(entry){
+						createiem(entry)
+					},function(err){
+						console.log(err)
+					})
+				},function(err){
+					console.log(err)
+				},{filename:'_doc/camera/',format:paizhaofenbianlv[0],resolution:shexiangtoufenbianlv[0],index:1})//--------filename: (String 类型 )拍照或摄像文件保存的路径
+				//--------------拍照或摄像界面默认使用的摄像头编号，1表示主摄像头，2表示辅摄像头。
+			}
+			
+			function shiping(){
+				var cmr = plus.camera.getCamera();
+				cmr.startVideoCapture(function(path){
+					plus.io.resolveLocalFileSystemURL(path,function(entry){
+						createiem(entry)
+					},function(err){
+						console.log(err)
+					})
+				}, function(e){
+					console.log('失败：'+e.message);
+				}, {filename:'_doc/camera/',index:1});
+			}
+			
+			function clears(){
+				var hl=document.getElementById('history');
+				hl.innerHTML='<li id="empty" class="ditem-empty">无历史记录</li>'
+				plus.io.resolveLocalFileSystemURL('_doc/',function(entry){
+					entry.getDirectory('camera',{create:true},function(dir){
+						dir.removeRecursively(function(){
+							plus.nativeUI.toast('清除成功',{duration:1000})
+						},function(err){
+							console.log(err)
+						})
+					})
+				})
+			}
+		</script>
+		<style type="text/css">
+			.iplay {
+				display: block;
+				background: no-repeat right center url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABYCAYAAAADWlKCAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAKwwAACsMBNCkkqwAAABZ0RVh0Q3JlYXRpb24gVGltZQAwOS8xMi8xM5w+I3MAAAAcdEVYdFNvZnR3YXJlAEFkb2JlIEZpcmV3b3JrcyBDUzVxteM2AAAD9UlEQVR4nO2b3XETMRRGDwzvoYOkg5hRAVkqiKmAdIA7wHSQVECoALsC1gXciV0BTge4gvCwgnHk9d/+WF8m97ztxrlXs8fS1Urym6enJxwd3uZugPMcFyKGCxHDhYjhQsRwIWK4EDFciBguRAwXIoYLEcOFiOFCxHAhYrgQMVyIGC5EDBcihgsRw4WI4ULEcCFiuBAx3uVuwDGY2XtgCBTAALjc8tEFMAdKYBJC+HOK9nXBm5dwUM7MCmAEXDcMMQVuQwhlV23qC2khZjYAboGrjkLOgFEIYd5RvM6RrSFmdgs80J0MYqyHGFsSuR4S60TJ9vrwCEziZ+YhhGXy/xdU9aWgqjfnW+IsgEKtvkgJiUPUPfUyZsD42DoQ68+Y+p62AG6UhjAZITt6xopq3L9vGf+Gqh6dJX+S6ilKNaRkU8YCGLSVARBjDGLMdS5jbgkkhMQiWyejSGtEG2KsghopKoU++5AV68ZDcrvXYWTH8Pghdz1R6CHpN3MFDPsc02PsYcy1qy0nJ6uQOANKZz+jfcOUmd3H6W1jYo5RcvsqtikbuXtI+kBmBxbwz8DczMZtksdcsz1tOinZhMRxPF2bGh8R4gz4amZLMxu2aEqa8zq2LQs5e0j6EB8bLv6dAz/NrGwyjMWcj3vadjJyCimS60nLeFfAbzO7bfANT3MXLdvSmJxCBsl12VHcL8AyvpkfSpo7bdvJyCkkfQfocv5/Bnw3s/mBs6Y097aFzd7JPcv6T5dv5GtcAr/2TZN7yt0IGSE908k0+RS8FiEvhhd1yKEFUw5YAVBApoe0XQrZwgL4GEIY7pLRU+5G5OwhC57PZgbAsqPYK6rdxUMXC9Npbro8fzJy9pB0qll0FPcOuDhCRl3ubEvwOYWUyXXb5YoZ1X7GqMHSfZq7bNmWxuQUki5XnDdc+n4EPoUQiiabSzFnejKl7TJOY7IJid/iaXJ7fESIFfCNas+9zQNMc05zHnjIPctKx/mrA9egflCJGLd5eDFXukGWdddQYU+95PlDWVE97GXPeS+oivf6saBZCKHoM+8+cvcQ2NyhOwMmfW4SxdgTNs9oZd0tBAEhsRDfJbcvgbIPKTtOnNzlPnECAkPWP8xsTv3ZrJ1v2UfmuKDqGRt5QgjZ9kDWyd5D1iioP1U4P3KzqZYYY5v0om38rpDpIeCHrUFMCPjPEeSE/COetf3SU/i7EEL2GVUdSjXkGfGBfWDzIFsb/q93dRizU2R7yDr+o09R/GfRzsmRrSGvFRcihgsRw4WI4ULEcCFiuBAxXIgYLkQMFyKGCxHDhYjhQsRwIWK4EDFciBguRAwXIoYLEcOFiOFCxHAhYrgQMf4CVuqCm+17t3sAAAAASUVORK5CYII=);
+				background-size: 50px 44px;
+				-ms-touch-action: auto;
+			}
+			.ditem{
+				margin-top: 20px;
+			}
+			ul{
+				list-style: none;
+			}
+		</style>
+	</head>
+	<body>
+		<button type="button" class="mui-btn mui-btn-blue mui-btn-block" onclick="paizhao()">拍照</button>
+		<button type="button" class="mui-btn mui-btn-blue mui-btn-block" onclick="shiping()">视频</button>
+		<ul id="history" class="dlist" style="text-align:left;">
+			<li id="empty" class="ditem-empty">无历史记录</li>
+		</ul>
+		<button type="button" class="mui-btn mui-btn-blue mui-btn-block" onclick="clears()">清除所有数据</button>
+	</body>
+</html>

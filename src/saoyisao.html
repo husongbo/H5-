@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title></title>
+		<style type="text/css">
+			#sao{
+				width: 100%;
+				position: absolute;
+				top: 0px;
+				left: 0;
+				bottom: 0px;
+				text-align: center;
+			}
+		</style>
+		<script type="text/javascript">
+			var scan=null,wx=null
+			var wo=null
+			function plusReady(){
+				ws=plus.webview.currentWebview()
+				wo=ws.opener()
+				ws.addEventListener('show',function(){
+					scan=new plus.barcode.Barcode('sao')
+					scan.onmarked=onmarked;
+					scan.start({conserve:true,//-----------是否保存扫码成功时的截图
+					filename:'_doc/barcode/'},//----------保存扫码成功时图片保存路径
+					);//-------------开始扫码识别
+				},false)
+			}
+			if(window.plus){
+				plusReady()
+			}
+			else{
+				document.addEventListener('plusready',plusReady,false)
+			}
+			// 二维码扫描成功
+			function onmarked(type, result, file){//------------type识别到的条码类型,code: ( String ) 必选 识别到的条码数据,file: ( String ) 可选 扫码成功的截图文件路径
+			    switch(type){
+			    	case plus.barcode.QR:
+			    	type = 'QR';
+			    	break;
+			    	case plus.barcode.EAN13:
+			    	type = 'EAN13';
+			    	break;
+			    	case plus.barcode.EAN8:
+			    	type = 'EAN8';
+			    	break;
+			    	default:
+			    	type = '其它'+type;
+			    	break;
+			    }
+			    result = result.replace(/\r\n/g, '');
+			    console.log(result)
+				plus.nativeUI.confirm(result,function(){
+					ws.close()
+				})
+			}
+			// 从相册中选择二维码图片
+			// function scanPicture(){
+			//     plus.gallery.pick(function(path){
+			// 	    plus.barcode.scan(path,onmarked,function(error){
+			// 			plus.nativeUI.alert('无法识别此图片');
+			// 		});
+			//     }, function(err){
+			//         console.log('Failed: '+err.message);
+			//     });
+			// }
+		</script>
+	</head>
+	<body style="background: black;">
+		<div id="sao">
+			<div style="height:40%"></div>
+		</div>
+	</body>
+</html>
